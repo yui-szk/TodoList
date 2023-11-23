@@ -1,13 +1,16 @@
 import { useState } from "react";
+import { TodoItem } from "./TodoItem";
+import { Select } from "./Select";
 
-type Todo = {
+export type Todo = {
   value: string;
   readonly id: number;
   checked: boolean;
   removed: boolean;
 };
 
-type Filter = "all" | "checked" | "unchecked" | "removed";
+const filters = ["all", "checked", "unchecked", "removed"] as const;
+export type Filter = (typeof filters)[number];
 
 export function App() {
   const [text, setText] = useState("");
@@ -32,22 +35,23 @@ export function App() {
     setText("");
   };
 
-  const handleTodo = <K extends keyof Todo, V extends Todo[K]>(
-    id: number,
-    key: K,
-    value: V
-  ) => {
-    setTodos((todos) => {
-      const newTodos = todos.map((todo) => {
-        if (todo.id === id) {
-          return { ...todo, [key]: value };
-        } else {
-          return todo;
-        }
-      });
-      return newTodos;
-    });
-  };
+  function editTodo({ id, value }: Pick<Todo, "id" | "value">) {
+    setTodos((todos) =>
+      todos.map((todo) => (todo.id === id ? { ...todo, value } : todo))
+    );
+  }
+
+  function checkTodo({ id, checked }: Pick<Todo, "id" | "checked">) {
+    setTodos((todos) =>
+      todos.map((todo) => (todo.id === id ? { ...todo, checked } : todo))
+    );
+  }
+
+  function removeTodo({ id, removed }: Pick<Todo, "id" | "removed">) {
+    setTodos((todos) =>
+      todos.map((todo) => (todo.id === id ? { ...todo, removed } : todo))
+    );
+  }
 
   const handleSort = (filter: Filter) => {
     setFilter(filter);
@@ -74,15 +78,11 @@ export function App() {
 
   return (
     <div>
-      <select
-        defaultValue="all"
+      <Select
+        options={filters.map((v) => ({ value: v, name: v }))}
+        defaultValue={"all"}
         onChange={(e) => handleSort(e.target.value as Filter)}
-      >
-        <option value="all">All Tasks</option>
-        <option value="checked">Completed Tasks</option>
-        <option value="unchecked">Current Tasks</option>
-        <option value="removed">Dustbin</option>
-      </select>
+      />
       {filter === "removed" ? (
         <button
           onClick={handleEmpty}
@@ -104,31 +104,16 @@ export function App() {
         )
       )}
       <ul>
-        {filteredTodos.map((todo) => {
-          return (
-            <li key={todo.id}>
-              <input
-                type="checkbox"
-                disabled={todo.removed}
-                checked={todo.checked}
-                onChange={() => handleTodo(todo.id, "checked", !todo.checked)}
-              />
-              <input
-                type="text"
-                disabled={todo.checked || todo.removed}
-                value={todo.value}
-                onChange={(e) => handleTodo(todo.id, "value", e.target.value)}
-              />
-              <button
-                onClick={() => handleTodo(todo.id, "removed", !todo.removed)}
-              >
-                {todo.removed ? "Restore" : "Delete"}
-              </button>
-            </li>
-          );
-        })}
+        {filteredTodos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            editTodo={editTodo}
+            checkTodo={checkTodo}
+            removeTodo={removeTodo}
+          />
+        ))}
       </ul>
-      <p>{text}</p>
     </div>
   );
 }
