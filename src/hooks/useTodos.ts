@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Filter } from "../constants/filter";
-import type { Todo } from "../types/Todo";
+import type { Todo } from "../types/todo";
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
