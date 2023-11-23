@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { TodoItem } from "@/components/TodoItem";
 import { Select } from "@/components/Select";
+import { filters, type Filter } from "@/constants/filter";
 import { useTodos } from "@/hooks/useTodos";
-
-export type Todo = {
-  value: string;
-  readonly id: number;
-  checked: boolean;
-  removed: boolean;
-};
-
-const filters = ["all", "checked", "unchecked", "removed"] as const;
-export type Filter = (typeof filters)[number];
 
 export function App() {
   const [text, setText] = useState("");
