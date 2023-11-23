@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useTodos } from "../hooks/useTodos";
-import { TodoItem } from "./TodoItem";
-import { Select } from "./Select";
+import { TodoItem } from "@/components/TodoItem";
+import { Select } from "@/components/Select";
+import { useTodos } from "@/hooks/useTodos";
 
 export type Todo = {
   value: string;
